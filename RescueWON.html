@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>RESCUE-WON Calculator</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      max-width: 600px;
+      margin: 30px auto;
+      padding: 20px;
+      border: 1px solid #ccc;
+      border-radius: 10px;
+    }
+    header {
+      display: flex;
+      align-items: center;
+      margin-bottom: 20px;
+    }
+    header img {
+      height: 50px;
+      margin-right: 15px;
+    }
+    label, select, input {
+      display: block;
+      margin-bottom: 15px;
+      width: 100%;
+    }
+    button {
+      padding: 10px 20px;
+      font-size: 16px;
+    }
+    #result {
+      margin-top: 20px;
+      font-size: 18px;
+      font-weight: bold;
+      color: green;
+    }
+    #suggestion {
+      margin-top: 10px;
+      font-size: 20px;
+      font-weight: bold;
+      text-align: center;
+    }
+    footer {
+      margin-top: 40px;
+      font-size: 14px;
+      text-align: center;
+      color: #555;
+      border-top: 1px solid #ccc;
+      padding-top: 15px;
+    }
+    .disclaimer {
+      margin-top: 20px;
+      font-size: 13px;
+      color: #a00;
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <img src="AIG LOGO.png" alt="AIG Hospitals Logo">
+    <h2>RESCUE-WON Calculator</h2>
+  </header>
+
+  <label>Etiology:
+    <select id="etiology">
+      <option value="1">1 - Alco</option>
+      <option value="2">2 - Biliary</option>
+      <option value="3">3 - Other</option>
+    </select>
+  </label>
+
+  <label>Severity:
+    <select id="severity">
+      <option value="1">1 - MSAP</option>
+      <option value="2">2 - SAP</option>
+    </select>
+  </label>
+
+  <label>Hematocrit (%):
+    <input type="number" id="hematocrit" step="0.1">
+  </label>
+
+  <label>Organ Failure:
+    <select id="organFailure">
+      <option value="0">0 - No OF</option>
+      <option value="1">1 - OF Yes</option>
+    </select>
+  </label>
+
+  <label>ICU Stay:
+    <select id="icuStay">
+      <option value="0">0 - No ICU</option>
+      <option value="1">1 - ICU Yes</option>
+    </select>
+  </label>
+
+  <label>WON Size (cm):
+    <input type="number" id="wonSize" step="0.1">
+  </label>
+
+  <label>Paracolic Extension:
+    <select id="paracolic">
+      <option value="0">0 - No</option>
+      <option value="1">1 - Yes</option>
+    </select>
+  </label>
+
+  <label>Solid Debris (%):
+    <input type="number" id="solidDebris" step="1">
+  </label>
+
+  <button onclick="calculateProbability()">Calculate</button>
+
+  <div id="result"></div>
+  <div id="suggestion"></div>
+
+  <div class="disclaimer">
+    Disclaimer: This calculator is intended to provide an indicative estimate based on logistic regression modeling in the context of EUS-guided drainage of Walled-Off Necrosis (WON). It is not a substitute for clinical judgment. Final decisions should always rest with the treating clinician.
+  </div>
+
+  <footer>
+    Developed by Dr. Nitin Jagtap<br>
+    Sr. Consultant - Gastroenterologist & Endoscopist, AIG Hospitals<br>
+    Email: <a href="mailto:docnits13@gmail.com">docnits13@gmail.com</a>
+  </footer>
+
+  <script>
+    function calculateProbability() {
+      const A = parseFloat(document.getElementById('etiology').value);
+      const B = parseFloat(document.getElementById('severity').value);
+      const C = parseFloat(document.getElementById('hematocrit').value);
+      const D = parseFloat(document.getElementById('organFailure').value);
+      const E = parseFloat(document.getElementById('icuStay').value);
+      const F = parseFloat(document.getElementById('wonSize').value);
+      const G = parseFloat(document.getElementById('paracolic').value);
+      const H = parseFloat(document.getElementById('solidDebris').value);
+
+      if (isNaN(C) || isNaN(F) || isNaN(H)) {
+        document.getElementById('result').innerText = "Please enter all required numeric values.";
+        document.getElementById('suggestion').innerText = "";
+        return;
+      }
+
+      const x = -7.6935 + 0.0356 * A + 0.2568 * B - 0.0031 * C - 0.2218 * D +
+                0.7761 * E + 0.3237 * F + 2.323 * G + 0.0989 * H;
+      const probability = 1 / (1 + Math.exp(-x));
+
+      document.getElementById('result').innerText =
+        `Predicted Probability: ${probability.toFixed(4)} (or ${(probability * 100).toFixed(2)}%)`;
+
+      let suggestionText = "";
+      if (probability < 0.2) {
+        suggestionText = "Not likely to require reintervention";
+      } else if (probability >= 0.2 && probability < 0.5) {
+        suggestionText = "Maybe likely to require reintervention";
+      } else if (probability >= 0.5 && probability < 0.75) {
+        suggestionText = "Likely to require reintervention";
+      } else {
+        suggestionText = "Most likely to require reintervention";
+      }
+
+      document.getElementById('suggestion').innerText = suggestionText;
+    }
+  </script>
+</body>
+</html>
